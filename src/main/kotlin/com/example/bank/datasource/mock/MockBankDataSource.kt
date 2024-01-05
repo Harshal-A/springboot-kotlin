@@ -5,12 +5,20 @@ import com.example.bank.model.Bank
 import org.springframework.stereotype.Repository
 
 @Repository
-class MockBankDataSource:BankDataSource {
-    override fun retrieveBanks(): Collection<Bank> {
+class MockBankDataSource : BankDataSource {
 
-        val bank1 = Bank("123", 12.0, 12)
-        val bank2 = Bank("234", 17.0, 100)
-        val bank3 = Bank("345", 0.0, 122)
-        return listOf(bank1,bank2,bank3)
+    private val banks = listOf(
+        Bank("123", 12.0, 12),
+        Bank("234", 17.0, 100),
+        Bank("345", 0.0, 122)
+    )
+
+    override fun retrieveBanks(): Collection<Bank> {
+        return banks
+    }
+
+    override fun retrieveBank(accountNumber: String): Bank {
+        return banks.firstOrNull { it.accountNumber==accountNumber }
+            ?: throw NoSuchElementException("Could not find bank for accountNumber : $accountNumber")
     }
 }
