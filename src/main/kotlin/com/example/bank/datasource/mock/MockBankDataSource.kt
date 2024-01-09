@@ -18,15 +18,24 @@ class MockBankDataSource : BankDataSource {
     }
 
     override fun retrieveBank(accountNumber: String): Bank {
-        return banks.firstOrNull { it.accountNumber==accountNumber }
+        return banks.firstOrNull { it.accountNumber == accountNumber }
             ?: throw NoSuchElementException("Could not find bank for accountNumber : $accountNumber")
     }
 
     override fun createBank(bank: Bank): Bank {
-        if(banks.any { it.accountNumber==bank.accountNumber }){
+        if (banks.any { it.accountNumber == bank.accountNumber }) {
             throw IllegalArgumentException("Bank already exists with given accountNumber")
         }
         banks.add(bank)
         return bank
+    }
+
+    override fun updateBank(updatedBank: Bank): Bank {
+        var currentBank = banks.firstOrNull { it.accountNumber == updatedBank.accountNumber }
+            ?: throw NoSuchElementException("Could not find bank for accountNumber : ${updatedBank.accountNumber}")
+
+        banks.remove(currentBank)
+        banks.add(updatedBank)
+        return updatedBank
     }
 }

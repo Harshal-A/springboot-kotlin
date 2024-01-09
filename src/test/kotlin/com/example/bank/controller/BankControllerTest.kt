@@ -2,19 +2,15 @@ package com.example.bank.controller
 
 import com.example.bank.model.Bank
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jsonMapper
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.*
 
 private const val s = "/api/banks"
 
@@ -121,6 +117,60 @@ internal class BankControllerTest @Autowired constructor(
                     status { isBadRequest() }
                 }
         }
+    }
+
+    @Nested
+    @DisplayName("PUT /api/banks")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class PutExistingBank {
+
+        @Test
+        fun shouldPutExitingBank(){
+            //given
+            val updatedBank = Bank("123", 5.0, 11)
+
+            //when
+            val performPutRequest = mockMvc.put("/api/banks") {
+                contentType = MediaType.APPLICATION_JSON // for request body
+                content = objectMapper.writeValueAsString(updatedBank)
+            }
+            //then
+            performPutRequest
+                .andDo { print() }
+                .andExpect {
+                    status { isOk() }
+                    content {
+                        contentType(MediaType.APPLICATION_JSON)
+                        json(objectMapper.writeValueAsString(updatedBank))
+                    }
+                }
+
+            mockMvc.get("/api/banks/${updatedBank.accountNumber}")
+                .andExpect {
+                    content {
+                        json(objectMapper.writeValueAsString(updatedBank))
+                    }
+                }
+        }
+
+        @Test
+        fun shouldThrowExceptionIfBankDoesNotExist(){
+            //given
+            val updatedBank = Bank("1234", 5.0, 11)
+
+            //when
+            val performPutRequest = mockMvc.put("/api/banks") {
+                contentType = MediaType.APPLICATION_JSON // for request body
+                content = objectMapper.writeValueAsString(updatedBank)
+            }
+            //then
+            performPutRequest
+                .andDo { print() }
+                .andExpect {
+                    status { isNotFound() }
+                }
+        }
+
     }
 
 

@@ -4,15 +4,7 @@ import com.example.bank.model.Bank
 import com.example.bank.service.BankService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/banks")
@@ -34,5 +26,8 @@ class BankController(private val service:BankService) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun addBank(@RequestBody bank:Bank):Bank = service.addBank(bank)
+
+    @PutMapping
+    fun updateBank(@RequestBody bank:Bank):Bank = service.updateBank(bank)
 
 }
