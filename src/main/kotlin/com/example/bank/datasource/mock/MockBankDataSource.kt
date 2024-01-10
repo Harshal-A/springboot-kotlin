@@ -38,4 +38,11 @@ class MockBankDataSource : BankDataSource {
         banks.add(updatedBank)
         return updatedBank
     }
+
+    override fun deleteBank(accountNumber: String) {
+        var bank = banks.firstOrNull { it.accountNumber == accountNumber }
+            ?: throw NoSuchElementException("Could not find bank for accountNumber : $accountNumber")
+
+        banks.remove(bank)
+    }
 }

@@ -33,7 +33,7 @@ internal class BankControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$[0].accountNumber") { value("123") }
+                    jsonPath("$[1].accountNumber") { value("345") }
                 }
         }
     }
@@ -46,7 +46,7 @@ internal class BankControllerTest @Autowired constructor(
         @Test
         fun shouldReturnBankForGivenAccountNumber() {
             //given
-            val accountNumber = "123"
+            val accountNumber = "345"
 
             //when then
             mockMvc.get("/api/banks/$accountNumber")
@@ -54,8 +54,8 @@ internal class BankControllerTest @Autowired constructor(
                 .andExpect {
                     status { isOk() }
                     content { contentType(MediaType.APPLICATION_JSON) }
-                    jsonPath("$.trust") { value(12.0) }
-                    jsonPath("$.transactionFee") { value(12) }
+                    jsonPath("$.trust") { value(0.0) }
+                    jsonPath("$.transactionFee") { value(122) }
                 }
         }
 
@@ -94,10 +94,10 @@ internal class BankControllerTest @Autowired constructor(
                 .andExpect {
                     status { isCreated() }
                     content { contentType(MediaType.APPLICATION_JSON) } // for response body
-                    jsonPath("$.accountNumber"){value(newBank.accountNumber)}
-                    jsonPath("$.trust"){value(newBank.trust)}
-                    jsonPath("$.transactionFee"){value(newBank.transactionFee)}
-            }
+                    jsonPath("$.accountNumber") { value(newBank.accountNumber) }
+                    jsonPath("$.trust") { value(newBank.trust) }
+                    jsonPath("$.transactionFee") { value(newBank.transactionFee) }
+                }
         }
 
         @Test
@@ -125,9 +125,9 @@ internal class BankControllerTest @Autowired constructor(
     inner class PutExistingBank {
 
         @Test
-        fun shouldPutExitingBank(){
+        fun shouldPutExitingBank() {
             //given
-            val updatedBank = Bank("123", 5.0, 11)
+            val updatedBank = Bank("345", 5.0, 11)
 
             //when
             val performPutRequest = mockMvc.put("/api/banks") {
@@ -154,7 +154,7 @@ internal class BankControllerTest @Autowired constructor(
         }
 
         @Test
-        fun shouldThrowExceptionIfBankDoesNotExist(){
+        fun shouldThrowExceptionIfBankDoesNotExist() {
             //given
             val updatedBank = Bank("1234", 5.0, 11)
 
@@ -171,6 +171,51 @@ internal class BankControllerTest @Autowired constructor(
                 }
         }
 
+    }
+
+    @Nested
+    @DisplayName("DELETE /api/banks/{accountNumber}")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class DeleteExistingBank {
+
+        @Test
+        fun shouldDeleteExitingBank() {
+            //given
+            val accountNumber = 123
+
+            //when
+            val performDeleteRequest = mockMvc.delete("/api/banks/${accountNumber}") {
+                contentType = MediaType.APPLICATION_JSON // for request body
+            }
+            //then
+            performDeleteRequest
+                .andDo { print() }
+                .andExpect {
+                    status { isNoContent() }
+                }
+
+            mockMvc.get("/api/banks/${accountNumber}")
+                .andExpect {
+                    status { isNotFound() }
+                }
+        }
+
+        @Test
+        fun shouldReturnNotFoundIfAccountNumberDoesNotExist() {
+            //given
+            val accountNumber = 1234
+
+            //when
+            val performDeleteRequest = mockMvc.delete("/api/banks/${accountNumber}") {
+                contentType = MediaType.APPLICATION_JSON // for request body
+            }
+            //then
+            performDeleteRequest
+                .andDo { print() }
+                .andExpect {
+                    status { isNotFound() }
+                }
+        }
     }
 
 
